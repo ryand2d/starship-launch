@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:title" content="Starship Launch Counter" />
+  <meta property="og:description" content="Live counter tracking days since the last Starship launch." />
+  <title>Starship Launch Counter</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --border: #1e1e2e;
+      --orange: #ff5a14;
+      --orange-dim: rgba(255, 90, 20, 0.12);
+      --text: #f0f0f5;
+      --muted: #888;
+      --green: #3ecf8e;
+      --red: #f04747;
+      --yellow: #f5a623;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 16px 48px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+    }
+
+    .rocket-wrap {
+      position: relative;
+      width: 90px;
+      height: 290px;
+    }
+
+    /* Exhaust glow under SVG */
+    .rocket-wrap::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 24px;
+      background: radial-gradient(ellipse at center, rgba(255,90,20,0.55) 0%, transparent 70%);
+      filter: blur(6px);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+      50%       { opacity: 1;   transform: translateX(-50%) scaleX(1.25); }
+    }
+
+    /* ── Badge ── */
+    .flight-badge {
+      margin-top: 28px;
+      background: var(--orange-dim);
+      border: 1px solid rgba(255,90,20,0.3);
+      border-radius: 999px;
+      padding: 5px 16px;
+      font-size: 13px;
+      color: var(--orange);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ── Tagline ── */
+    .tagline {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* ── Counter ── */
+    .section {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .counter-label {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .counter {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .unit {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .unit-value {
+      font-size: clamp(28px, 8vw, 40px);
+      font-weight: 700;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .unit-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    /* ── Total days callout ── */
+    .days-callout {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .days-callout span {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* ── Next flight ── */
+    .next-flight {
+      margin-top: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .next-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.25; }
+    }
+
+    .next-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .next-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── History table ── */
+    .table-label {
+      margin-top: 40px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .history-table {
+      margin-top: 14px;
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history-table thead th {
+      text-align: left;
+      padding: 0 12px 10px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .history-table thead th:last-child { text-align: right; }
+
+    .history-table tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    .history-table tbody tr:last-child { border-bottom: none; }
+    .history-table tbody tr:hover { background: var(--surface); }
+
+    .history-table tbody td {
+      padding: 12px 12px;
+      vertical-align: middle;
+    }
+
+    .history-table tbody td:last-child { text-align: right; }
+
+    .flight-num {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .date-col { color: var(--muted); }
+
+    .outcome-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .outcome-label {
+      vertical-align: middle;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .gap-col {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .gap-live {
+      color: var(--orange);
+    }
+
+    .gap-normal { color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 48px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    footer a { color: var(--muted); text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Hero ── -->
+  <div class="hero">
+    <div class="rocket-wrap">
+      <!-- SVG: Starship integrated vehicle (Ship + Super Heavy) -->
+      <svg viewBox="0 0 90 290" fill="none" xmlns="http://www.w3.org/2000/svg" width="90" height="290" aria-label="Starship integrated vehicle">
+        <defs>
+          <!-- Metallic gradient for Starship ship (x: 35–55) -->
+          <linearGradient id="g-ship" x1="35" x2="55" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#505862"/>
+            <stop offset="25%"  stop-color="#a8b2be"/>
+            <stop offset="52%"  stop-color="#d6dae4"/>
+            <stop offset="78%"  stop-color="#8e98a6"/>
+            <stop offset="100%" stop-color="#3e464e"/>
+          </linearGradient>
+          <!-- Metallic gradient for Super Heavy booster (x: 31–59) -->
+          <linearGradient id="g-boost" x1="31" x2="59" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#464c58"/>
+            <stop offset="25%"  stop-color="#9ca6b2"/>
+            <stop offset="52%"  stop-color="#c6ccd8"/>
+            <stop offset="78%"  stop-color="#828c98"/>
+            <stop offset="100%" stop-color="#363c48"/>
+          </linearGradient>
+          <!-- Fin gradients (left / right, angled outward so they look right) -->
+          <linearGradient id="g-fin-l" x1="15" x2="36" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#2c3038"/>
+            <stop offset="55%"  stop-color="#606870"/>
+            <stop offset="100%" stop-color="#848c96"/>
+          </linearGradient>
+          <linearGradient id="g-fin-r" x1="54" x2="76" y1="0" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#848c96"/>
+            <stop offset="45%"  stop-color="#606870"/>
+            <stop offset="100%" stop-color="#2c3038"/>
+          </linearGradient>
+        </defs>
+
+        <!-- ── Exhaust plume ── -->
+        <ellipse cx="45" cy="278" rx="22" ry="10" fill="rgba(255,70,5,0.20)"/>
+        <ellipse cx="45" cy="281" rx="14" ry="7"  fill="rgba(255,100,15,0.35)"/>
+        <ellipse cx="45" cy="284" rx="9"  ry="5"  fill="rgba(255,150,35,0.55)"/>
+        <ellipse cx="45" cy="287" rx="5"  ry="3"  fill="rgba(255,215,90,0.80)"/>
+
+        <!-- ── Super Heavy booster ── -->
+        <!-- Grid fins — left -->
+        <path d="M31 148 L13 163 L13 173 L31 172 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
+        <!-- Grid fins — right -->
+        <path d="M59 148 L77 163 L77 173 L59 172 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
+
+        <!-- Booster body -->
+        <rect x="31" y="136" width="28" height="130" rx="2" fill="url(#g-boost)"/>
+
+        <!-- Booster panel seam lines -->
+        <line x1="31" y1="200" x2="59" y2="200" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"/>
+        <line x1="31" y1="232" x2="59" y2="232" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"/>
+
+        <!-- Engine section plate -->
+        <rect x="31" y="260" width="28" height="8" rx="1" fill="#20262e"/>
+        <!-- Engine nozzles — 3 in a row -->
+        <ellipse cx="38.5" cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
+        <ellipse cx="45"   cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
+        <ellipse cx="51.5" cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
+
+        <!-- ── Hot-staging interstage ring ── -->
+        <rect x="29" y="130" width="32" height="6" rx="1.5" fill="#ff5a14" opacity="0.88"/>
+
+        <!-- ── Starship (upper stage) ── -->
+        <!-- Rear flaps — large, at bottom of ship -->
+        <path d="M35 114 L16 133 L35 133 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
+        <path d="M55 114 L74 133 L55 133 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
+
+        <!-- Ship body cylinder -->
+        <rect x="35" y="50" width="20" height="80" rx="1" fill="url(#g-ship)"/>
+
+        <!-- Forward canards — small, upper-ish on ship -->
+        <path d="M35 68 L20 80 L35 84 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
+        <path d="M55 68 L70 80 L55 84 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
+
+        <!-- Nose cone — smooth ogive -->
+        <path d="M45 7 C42 20 35 38 35 50 L55 50 C55 38 48 20 45 7 Z" fill="url(#g-ship)"/>
+
+        <!-- Nose tip highlight -->
+        <ellipse cx="45" cy="10" rx="2" ry="3" fill="rgba(220,228,240,0.4)"/>
+      </svg>
+    </div>
+
+    <div class="flight-badge">Flight 11 · Oct 13, 2025</div>
+    <p class="tagline">Last Starship integrated flight test</p>
+  </div>
+
+  <!-- ── Counter ── -->
+  <div class="section">
+    <p class="counter-label">Time since last launch</p>
+    <div class="counter">
+      <div class="unit">
+        <span class="unit-value" id="days">—</span>
+        <span class="unit-label">Days</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="hours">—</span>
+        <span class="unit-label">Hrs</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="minutes">—</span>
+        <span class="unit-label">Min</span>
+      </div>
+      <div class="unit">
+        <span class="unit-value" id="seconds">—</span>
+        <span class="unit-label">Sec</span>
+      </div>
+    </div>
+    <p class="days-callout"><span id="total-days">—</span> days and counting</p>
+
+    <div class="next-flight">
+      <div class="next-dot"></div>
+      <p class="next-text"><strong>Next: Flight 12 (Block 3)</strong> — no confirmed date</p>
+    </div>
+  </div>
+
+  <!-- ── History table ── -->
+  <div class="section">
+    <p class="table-label">Launch history · gap between flights</p>
+    <table class="history-table" id="launch-table">
+      <thead>
+        <tr>
+          <th>Flight</th>
+          <th>Date</th>
+          <th>Outcome</th>
+          <th>Gap (days)</th>
+        </tr>
+      </thead>
+      <tbody id="launch-tbody"></tbody>
+    </table>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    Counter started from Flight 11 launch: 2025-10-13 23:23 UTC.<br>
+    Data updated manually after each flight.<br>
+    Not affiliated with SpaceX.
+  </footer>
+
+  <script>
+    const LAST_LAUNCH = new Date("2025-10-13T23:23:00Z");
+
+    const LAUNCHES = [
+      { flight: 7,  date: "2025-01-15", outcome: "partial" },
+      { flight: 8,  date: "2025-03-06", outcome: "partial" },
+      { flight: 9,  date: "2025-05-27", outcome: "partial" },
+      { flight: 10, date: "2025-08-26", outcome: "success" },
+      { flight: 11, date: "2025-10-13", outcome: "success" },
+    ];
+
+    // ── Counter ──────────────────────────────────────────────
+    function pad(n) { return String(Math.floor(n)).padStart(2, "0"); }
+
+    function tick() {
+      const diff = Date.now() - LAST_LAUNCH.getTime();
+      const totalSec = Math.floor(diff / 1000);
+      const d = Math.floor(totalSec / 86400);
+      const h = Math.floor((totalSec % 86400) / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+
+      document.getElementById("days").textContent    = d;
+      document.getElementById("hours").textContent   = pad(h);
+      document.getElementById("minutes").textContent = pad(m);
+      document.getElementById("seconds").textContent = pad(s);
+      document.getElementById("total-days").textContent = d;
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    // ── History table ─────────────────────────────────────────
+    const OUTCOME_META = {
+      success: { color: "#3ecf8e", label: "Success" },
+      partial: { color: "#f5a623", label: "Partial" },
+      failure: { color: "#f04747", label: "Failure" },
+    };
+
+    function daysBetween(a, b) {
+      return Math.round((b - a) / 86400000);
+    }
+
+    function buildTable() {
+      const tbody = document.getElementById("launch-tbody");
+
+      // Precompute gaps (each flight → days since previous)
+      const rows = LAUNCHES.map((launch, i) => {
+        const prev = LAUNCHES[i - 1];
+        const launchDate = new Date(launch.date + "T00:00:00Z");
+        const prevDate   = prev ? new Date(prev.date + "T00:00:00Z") : null;
+        const gap        = prev ? daysBetween(prevDate, launchDate) : null;
+        const meta       = OUTCOME_META[launch.outcome] || OUTCOME_META.partial;
+        return { launch, gap, meta };
+      });
+
+      // Live gap uses the exact LAST_LAUNCH timestamp so it matches the counter
+      const liveGap = () => Math.floor((Date.now() - LAST_LAUNCH.getTime()) / 86400000);
+
+      // Live Flight 12 row — newest first
+      const tr12 = document.createElement("tr");
+      tr12.innerHTML = `
+        <td class="flight-num" style="color:var(--muted)">IFT-12</td>
+        <td class="date-col" style="color:var(--muted);font-style:italic">TBD</td>
+        <td>
+          <span class="outcome-dot" style="background:var(--orange);animation:blink 1.4s ease-in-out infinite"></span>
+          <span class="outcome-label">Pending</span>
+        </td>
+        <td class="gap-col gap-live" id="live-gap">${liveGap()}</td>
+      `;
+      tbody.appendChild(tr12);
+
+      // Historical rows — newest to oldest
+      rows.slice().reverse().forEach(({ launch, gap, meta }) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="flight-num">IFT-${launch.flight}</td>
+          <td class="date-col">${launch.date}</td>
+          <td>
+            <span class="outcome-dot" style="background:${meta.color}"></span>
+            <span class="outcome-label">${meta.label}</span>
+          </td>
+          <td class="gap-col gap-normal">${gap !== null ? gap : "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update live gap every minute
+      setInterval(() => {
+        const el = document.getElementById("live-gap");
+        if (el) el.textContent = liveGap();
+      }, 60000);
+    }
+
+    buildTable();
+  </script>
+</body>
+</html>
