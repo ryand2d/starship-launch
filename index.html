@@ -43,29 +43,21 @@
       padding-top: 40px;
     }
 
-    .rocket-wrap {
-      position: relative;
-      width: 90px;
-      height: 290px;
+    .hero-photo-wrap {
+      width: 100%;
+      max-width: 360px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 0 40px rgba(255, 90, 20, 0.08);
     }
 
-    /* Exhaust glow under SVG */
-    .rocket-wrap::after {
-      content: "";
-      position: absolute;
-      bottom: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 24px;
-      background: radial-gradient(ellipse at center, rgba(255,90,20,0.55) 0%, transparent 70%);
-      filter: blur(6px);
-      animation: pulse-glow 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse-glow {
-      0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
-      50%       { opacity: 1;   transform: translateX(-50%) scaleX(1.25); }
+    .hero-photo {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      object-position: center 20%;
+      display: block;
     }
 
     /* ── Badge ── */
@@ -285,86 +277,13 @@
 
   <!-- ── Hero ── -->
   <div class="hero">
-    <div class="rocket-wrap">
-      <!-- SVG: Starship integrated vehicle (Ship + Super Heavy) -->
-      <svg viewBox="0 0 90 290" fill="none" xmlns="http://www.w3.org/2000/svg" width="90" height="290" aria-label="Starship integrated vehicle">
-        <defs>
-          <!-- Metallic gradient for Starship ship (x: 35–55) -->
-          <linearGradient id="g-ship" x1="35" x2="55" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="#505862"/>
-            <stop offset="25%"  stop-color="#a8b2be"/>
-            <stop offset="52%"  stop-color="#d6dae4"/>
-            <stop offset="78%"  stop-color="#8e98a6"/>
-            <stop offset="100%" stop-color="#3e464e"/>
-          </linearGradient>
-          <!-- Metallic gradient for Super Heavy booster (x: 31–59) -->
-          <linearGradient id="g-boost" x1="31" x2="59" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="#464c58"/>
-            <stop offset="25%"  stop-color="#9ca6b2"/>
-            <stop offset="52%"  stop-color="#c6ccd8"/>
-            <stop offset="78%"  stop-color="#828c98"/>
-            <stop offset="100%" stop-color="#363c48"/>
-          </linearGradient>
-          <!-- Fin gradients (left / right, angled outward so they look right) -->
-          <linearGradient id="g-fin-l" x1="15" x2="36" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="#2c3038"/>
-            <stop offset="55%"  stop-color="#606870"/>
-            <stop offset="100%" stop-color="#848c96"/>
-          </linearGradient>
-          <linearGradient id="g-fin-r" x1="54" x2="76" y1="0" y2="0" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stop-color="#848c96"/>
-            <stop offset="45%"  stop-color="#606870"/>
-            <stop offset="100%" stop-color="#2c3038"/>
-          </linearGradient>
-        </defs>
-
-        <!-- ── Exhaust plume ── -->
-        <ellipse cx="45" cy="278" rx="22" ry="10" fill="rgba(255,70,5,0.20)"/>
-        <ellipse cx="45" cy="281" rx="14" ry="7"  fill="rgba(255,100,15,0.35)"/>
-        <ellipse cx="45" cy="284" rx="9"  ry="5"  fill="rgba(255,150,35,0.55)"/>
-        <ellipse cx="45" cy="287" rx="5"  ry="3"  fill="rgba(255,215,90,0.80)"/>
-
-        <!-- ── Super Heavy booster ── -->
-        <!-- Grid fins — left -->
-        <path d="M31 148 L13 163 L13 173 L31 172 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
-        <!-- Grid fins — right -->
-        <path d="M59 148 L77 163 L77 173 L59 172 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
-
-        <!-- Booster body -->
-        <rect x="31" y="136" width="28" height="130" rx="2" fill="url(#g-boost)"/>
-
-        <!-- Booster panel seam lines -->
-        <line x1="31" y1="200" x2="59" y2="200" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"/>
-        <line x1="31" y1="232" x2="59" y2="232" stroke="rgba(0,0,0,0.18)" stroke-width="1.2"/>
-
-        <!-- Engine section plate -->
-        <rect x="31" y="260" width="28" height="8" rx="1" fill="#20262e"/>
-        <!-- Engine nozzles — 3 in a row -->
-        <ellipse cx="38.5" cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
-        <ellipse cx="45"   cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
-        <ellipse cx="51.5" cy="268" rx="4"   ry="3"   fill="#141c24" stroke="#4e5662" stroke-width="0.8"/>
-
-        <!-- ── Hot-staging interstage ring ── -->
-        <rect x="29" y="130" width="32" height="6" rx="1.5" fill="#ff5a14" opacity="0.88"/>
-
-        <!-- ── Starship (upper stage) ── -->
-        <!-- Rear flaps — large, at bottom of ship -->
-        <path d="M35 114 L16 133 L35 133 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
-        <path d="M55 114 L74 133 L55 133 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
-
-        <!-- Ship body cylinder -->
-        <rect x="35" y="50" width="20" height="80" rx="1" fill="url(#g-ship)"/>
-
-        <!-- Forward canards — small, upper-ish on ship -->
-        <path d="M35 68 L20 80 L35 84 Z" fill="url(#g-fin-l)" stroke="#4a5060" stroke-width="0.5"/>
-        <path d="M55 68 L70 80 L55 84 Z" fill="url(#g-fin-r)" stroke="#4a5060" stroke-width="0.5"/>
-
-        <!-- Nose cone — smooth ogive -->
-        <path d="M45 7 C42 20 35 38 35 50 L55 50 C55 38 48 20 45 7 Z" fill="url(#g-ship)"/>
-
-        <!-- Nose tip highlight -->
-        <ellipse cx="45" cy="10" rx="2" ry="3" fill="rgba(220,228,240,0.4)"/>
-      </svg>
+    <div class="hero-photo-wrap">
+      <img
+        class="hero-photo"
+        src="https://live.staticflickr.com/65535/52822653368_ff034659d4_b.jpg"
+        alt="Starship integrated vehicle launching"
+        loading="eager"
+      />
     </div>
 
     <div class="flight-badge">Flight 11 · Oct 13, 2025</div>
@@ -396,7 +315,7 @@
 
     <div class="next-flight">
       <div class="next-dot"></div>
-      <p class="next-text"><strong>Next: Flight 12 (Block 3)</strong> — no confirmed date</p>
+      <p class="next-text"><strong>Next: Flight 12 (Block 3)</strong> — NET May 19, 2026</p>
     </div>
   </div>
 
@@ -419,14 +338,20 @@
   <!-- ── Footer ── -->
   <footer>
     Counter started from Flight 11 launch: 2025-10-13 23:23 UTC.<br>
-    Data updated manually after each flight.<br>
-    Not affiliated with SpaceX.
+    Data updated manually after each flight. Not affiliated with SpaceX.<br>
+    Photo: <a href="https://www.flickr.com/photos/spacex/52822653368" target="_blank" rel="noopener">Official SpaceX Photos</a> · CC BY-NC 2.0
   </footer>
 
   <script>
     const LAST_LAUNCH = new Date("2025-10-13T23:23:00Z");
 
     const LAUNCHES = [
+      { flight: 1,  date: "2023-04-20", outcome: "failure" },
+      { flight: 2,  date: "2023-11-18", outcome: "failure" },
+      { flight: 3,  date: "2024-03-14", outcome: "partial" },
+      { flight: 4,  date: "2024-06-06", outcome: "success" },
+      { flight: 5,  date: "2024-10-13", outcome: "success" },
+      { flight: 6,  date: "2024-11-19", outcome: "partial" },
       { flight: 7,  date: "2025-01-15", outcome: "partial" },
       { flight: 8,  date: "2025-03-06", outcome: "partial" },
       { flight: 9,  date: "2025-05-27", outcome: "partial" },
